@@ -1,4 +1,4 @@
-TARGET_LIB ?= libcubic-nbt.a
+TARGET_LIB ?= libcubic-nbt
 
 TARGET_TESTS ?= glados
 
@@ -16,7 +16,11 @@ OBJS_TESTS := $(SRCS:%=$(BUILD_DIR_TESTS)/%.o)
 
 DEPS := $(OBJS:.o=.d)
 
+ifeq ($(shell ls ./libs),)
+LIB_FOLDERS :=
+else
 LIB_FOLDERS := $(shell ls -d ./libs/*/)
+endif
 
 INC_DIRS := $(SRC_DIRS) $(addsuffix include,$(LIB_FOLDERS))
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
@@ -29,6 +33,8 @@ CPPFLAGS += -DCUBIC_MC_VERSION=1.21 -DCUBIC_MC_PROTOCOL=767
 else
 $(error Minecraft version not supported or MC_VERSION env variable not set)
 endif
+
+SHARED := 0
 
 CXXFLAGS := -Wall
 CXXFLAGS += -Wextra
@@ -60,6 +66,14 @@ AR := ar
 ARFLAGS := rcsPv
 
 LDFLAGS :=
+
+ifeq ($(SHARED), 1)
+CXXFLAGS += -fPIC
+LDFLAGS += -shared
+TARGET_LIB := $(TARGET_LIB).so
+else
+TARGET_LIB := $(TARGET_LIB).a
+endif
 
 ifeq ($(NATIVE), 1)
 CXXFLAGS += -pipe
