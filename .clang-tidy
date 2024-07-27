@@ -14,26 +14,25 @@ Checks: "-*,
   -readability-identifier-length,
   clang-analyzer-*,
   modernize-*,
-  llvm-*,
-"
+  llvm-*,"
 
 CheckOptions:
-  - key:   readability-identifier-naming.EnumCase
+  - key: readability-identifier-naming.EnumCase
     value: lower_case
-  - key:   readability-identifier-naming.UnionCase
-    value: lower_case
-
-  - key:   readability-identifier-naming.FunctionCase
-    value: lower_case
-  - key:   readability-identifier-naming.ParameterCase
-    value: lower_case
-  - key:   readability-identifier-naming.VariableCase
+  - key: readability-identifier-naming.UnionCase
     value: lower_case
 
-  - key:   readability-identifier-naming.MacroDefinitionCase
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+
+  - key: readability-identifier-naming.MacroDefinitionCase
     value: UPPER_CASE
-  - key:   readability-identifier-naming.GlobalVariableCase
+  - key: readability-identifier-naming.GlobalVariableCase
     value: UPPER_CASE
 
-  - key:   readability-function-cognitive-complexity.IgnoreMacros
+  - key: readability-function-cognitive-complexity.IgnoreMacros
     value: true

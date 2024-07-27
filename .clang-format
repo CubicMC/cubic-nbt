@@ -52,4 +52,3 @@ SpaceBeforeCpp11BracedList: false
 SpaceBeforeCtorInitializerColon: false
 PenaltyBreakAssignment: 9999
 PenaltyReturnTypeOnItsOwnLine: 99999
-...
