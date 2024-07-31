@@ -1,15 +1,14 @@
 #pragma once
 
-#include <NBT/options.h>
+#include <cubic-nbt/options.h>
 
 #include <cstdint>
 #include <ostream>
 #include <string_view>
 
-CUBIC_WRAP_BEGIN
-namespace nbt {
+namespace cubic::nbt {
 
-class tag_type final {
+class CUBIC_NBT_API tag_type final {
 public:
     enum value : uint8_t {
         End = 0,
@@ -48,7 +47,8 @@ public:
     }
     explicit operator bool() const = delete;
 
-    NODISCARD auto to_string() const -> std::string_view
+    [[nodiscard]]
+    auto to_string() const -> std::string_view
     {
         switch (this->_value) {
         case value::End:
@@ -87,10 +87,9 @@ private:
 };
 static_assert(std::is_trivial<tag_type>::value, "tag_type must be trivial");
 
-} // namespace nbt
-CUBIC_WRAP_END
+} // namespace cubic::nbt
 
-inline auto operator<<(std::ostream &os, const CUBIC_WRAP::nbt::tag_type &type) -> std::ostream &
+inline auto operator<<(std::ostream &os, const cubic::nbt::tag_type &type) -> std::ostream &
 {
     return os << type.to_string();
 }

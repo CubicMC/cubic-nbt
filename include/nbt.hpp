@@ -1,6 +1,5 @@
 #pragma once
 
-#include <NBT/Tag.hpp>
-#include <NBT/options.h>
-#include <NBT/type.hpp>
-
+#include <cubic-nbt/options.h>
+#include <cubic-nbt/tag.hpp>
+#include <cubic-nbt/type.hpp>

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "NBT/endian.hpp"
-#include <NBT/options.h>
-#include <NBT/type.hpp>
-#include <parser.hpp>
-#include <serializer.hpp>
+#include <cubic-nbt/endian.hpp>
+#include <cubic-nbt/options.h>
+#include <cubic-nbt/type.hpp>
 
 #include <cstdint>
 #include <cstring>
@@ -13,8 +11,14 @@
 #include <variant>
 #include <vector>
 
-CUBIC_WRAP_BEGIN
-namespace nbt {
+// namespace cubic::parsing {
+// class Parser;
+// class Serializer;
+// } // namespace cubic::parsing
+#include <cubic-parsing/parser.hpp>
+#include <cubic-parsing/serializer.hpp>
+
+namespace cubic::nbt {
 
 struct Tag;
 
@@ -35,7 +39,7 @@ using TagLongArray = TagArray<TagLong>;
 struct TagCompound;
 
 template<typename T>
-struct TagArray : public std::vector<T> {
+struct CUBIC_NBT_API TagArray : public std::vector<T> {
     using std::vector<T>::vector;
 
     TagArray(std::vector<T> &&original) noexcept:
@@ -59,11 +63,11 @@ struct TagArray : public std::vector<T> {
         return *this;
     }
 
-    static void parse(Parser *parser, TagArray<T> &tag);
-    static void serialize(Serializer *serializer, const TagArray<T> &tag);
+    static void parse(parsing::Parser *parser, TagArray<T> &tag);
+    static void serialize(parsing::Serializer *serializer, const TagArray<T> &tag);
 };
 
-struct TagString : public std::string {
+struct CUBIC_NBT_API TagString : public std::string {
     using std::string::string;
 
     TagString() = default;
@@ -90,11 +94,11 @@ struct TagString : public std::string {
         return *this;
     }
 
-    static void parse(Parser *parser, TagString &tag);
-    static void serialize(Serializer *serializer, const TagString &tag);
+    static void parse(parsing::Parser *parser, TagString &tag);
+    static void serialize(parsing::Serializer *serializer, const TagString &tag);
 };
 
-struct TagList
+struct CUBIC_NBT_API TagList
     : public std::variant<
           std::vector<TagByte>, std::vector<TagShort>, std::vector<TagInt>, std::vector<TagLong>,
           std::vector<TagFloat>, std::vector<TagDouble>, std::vector<TagByteArray>,
@@ -127,15 +131,16 @@ struct TagList
         return *this;
     }
 
-    static void parse(Parser *parser, TagList &tag);
-    static void serialize(Serializer *serializer, const TagList &tag);
+    static void parse(parsing::Parser *parser, TagList &tag);
+    static void serialize(parsing::Serializer *serializer, const TagList &tag);
 
-    NODISCARD auto size() const -> size_t;
+    [[nodiscard]]
+    auto size() const -> size_t;
 
     tag_type type;
 };
 
-struct TagCompound : public std::map<TagString, Tag> {
+struct CUBIC_NBT_API TagCompound : public std::map<TagString, Tag> {
     using std::map<TagString, Tag>::map;
 
     TagCompound() = default;
@@ -161,13 +166,14 @@ struct TagCompound : public std::map<TagString, Tag> {
         return *this;
     }
 
-    static void parse(Parser *parser, TagCompound &tag);
-    static void serialize(Serializer *serializer, const TagCompound &tag);
+    static void parse(parsing::Parser *parser, TagCompound &tag);
+    static void serialize(parsing::Serializer *serializer, const TagCompound &tag);
 };
 
-struct Tag : public std::variant<
-                 TagByte, TagShort, TagInt, TagLong, TagFloat, TagDouble, TagByteArray, TagString,
-                 TagList, TagCompound, TagIntArray, TagLongArray> {
+struct CUBIC_NBT_API Tag
+    : public std::variant<
+          TagByte, TagShort, TagInt, TagLong, TagFloat, TagDouble, TagByteArray, TagString, TagList,
+          TagCompound, TagIntArray, TagLongArray> {
     using variant::variant;
 
     Tag() = default;
@@ -193,15 +199,16 @@ struct Tag : public std::variant<
         return *this;
     }
 
-    NODISCARD auto type() const -> tag_type;
+    [[nodiscard]]
+    auto type() const -> tag_type;
 
-    static void parse(Parser *parser, Tag &tag);
-    static void serialize(Serializer *serializer, const Tag &tag);
+    static void parse(parsing::Parser *parser, Tag &tag);
+    static void serialize(parsing::Serializer *serializer, const Tag &tag);
 };
 
 struct Nbt;
 
-struct NetworkNbt {
+struct CUBIC_NBT_API NetworkNbt {
     NetworkNbt() = default;
     NetworkNbt(TagCompound &&compound);
     // This may be a really bad idea performance wise
@@ -211,11 +218,11 @@ struct NetworkNbt {
 
     TagCompound data;
 
-    static void parse(Parser *parser, NetworkNbt &nbt);
-    static void serialize(Serializer *serializer, const NetworkNbt &nbt);
+    static void parse(parsing::Parser *parser, NetworkNbt &nbt);
+    static void serialize(parsing::Serializer *serializer, const NetworkNbt &nbt);
 };
 
-struct Nbt {
+struct CUBIC_NBT_API Nbt {
     Nbt() = default;
     Nbt(TagString label, TagCompound compound);
     // This may be a really bad idea performance wise
@@ -240,12 +247,12 @@ struct Nbt {
     TagString name;
     TagCompound data;
 
-    static void parse(Parser *parser, Nbt &nbt);
-    static void serialize(Serializer *serializer, const Nbt &nbt);
+    static void parse(parsing::Parser *parser, Nbt &nbt);
+    static void serialize(parsing::Serializer *serializer, const Nbt &nbt);
 };
 
 template<typename T>
-void TagArray<T>::serialize(Serializer *serializer, const TagArray<T> &tag)
+void TagArray<T>::serialize(parsing::Serializer *serializer, const TagArray<T> &tag)
 {
     serializer->write_raw<int32_t>(HOST_TO_NBT(static_cast<int32_t>(tag.size())));
     for (const auto &value : tag) {
@@ -257,7 +264,7 @@ void TagArray<T>::serialize(Serializer *serializer, const TagArray<T> &tag)
 }
 
 template<typename T>
-void TagArray<T>::parse(Parser *parser, TagArray<T> &tag)
+void TagArray<T>::parse(parsing::Parser *parser, TagArray<T> &tag)
 {
     int32_t size;
     parser->read_raw<int32_t>(size);
@@ -271,5 +278,4 @@ void TagArray<T>::parse(Parser *parser, TagArray<T> &tag)
             parser->read_object(value);
     }
 }
-} // namespace nbt
-CUBIC_WRAP_END
+} // namespace cubic::nbt

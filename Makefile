@@ -30,11 +30,8 @@ OBJS_SPEED := $(SRCS_SPEED:%=$(BUILD_DIR_SPEED)/%.o)
 
 DEPS := $(OBJS:.o=.d)
 
-ifeq ($(shell ls ./libs),)
-LIB_FOLDERS :=
-else
+_ := $(shell mkdir -p ./libs)
 LIB_FOLDERS := $(shell ls -d ./libs/*/)
-endif
 
 INC_DIRS += $(addsuffix include,$(LIB_FOLDERS)) $(SRC_DIRS)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
@@ -55,7 +52,8 @@ endif
 
 SHARED := 0
 
-CXXFLAGS := -Wall
+CXXFLAGS := -DCUBIC_NBT_BUILD
+CXXFLAGS += -Wall
 CXXFLAGS += -Wextra
 CXXFLAGS += -Wconversion
 CXXFLAGS += -std=c++17

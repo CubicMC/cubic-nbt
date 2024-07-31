@@ -1,9 +1,10 @@
-#include <NBT/Tag.hpp>
-#include <NBT/endian.hpp>
-#include <NBT/options.h>
-#include <NBT/type.hpp>
-#include <parser.hpp>
-#include <serializer.hpp>
+#include <cubic-nbt/endian.hpp>
+#include <cubic-nbt/options.h>
+#include <cubic-nbt/tag.hpp>
+#include <cubic-nbt/type.hpp>
+
+#include <cubic-parsing/parser.hpp>
+#include <cubic-parsing/serializer.hpp>
 
 #include <cstdint>
 #include <cstring>
@@ -11,8 +12,7 @@
 #include <type_traits>
 #include <variant>
 
-CUBIC_WRAP_BEGIN
-namespace nbt {
+namespace cubic::nbt {
 namespace details {
 
 static auto make_tag(tag_type type) -> Tag
@@ -102,13 +102,13 @@ Nbt::Nbt(NetworkNbt &nbt):
 {
 }
 
-void TagString::serialize(Serializer *serializer, const TagString &tag)
+void TagString::serialize(parsing::Serializer *serializer, const TagString &tag)
 {
     serializer->write<uint16_t>(HOST_TO_NBT(static_cast<uint16_t>(tag.size())));
     serializer->write_array<char>(tag.data(), static_cast<uint32_t>(tag.size()));
 }
 
-void TagString::parse(Parser *parser, TagString &tag)
+void TagString::parse(parsing::Parser *parser, TagString &tag)
 {
     uint16_t size = 0;
     parser->read<uint16_t>(size);
@@ -117,7 +117,7 @@ void TagString::parse(Parser *parser, TagString &tag)
     parser->read_array<char>(tag.data(), size);
 }
 
-void TagList::serialize(Serializer *serializer, const TagList &tag)
+void TagList::serialize(parsing::Serializer *serializer, const TagList &tag)
 {
     if (tag.size() <= 0) {
         serializer->write_raw<tag_type>(tag_type::End);
@@ -144,7 +144,7 @@ void TagList::serialize(Serializer *serializer, const TagList &tag)
     );
 }
 
-void TagList::parse(Parser *parser, TagList &tag)
+void TagList::parse(parsing::Parser *parser, TagList &tag)
 {
     int32_t size = 0;
     tag_type type;
@@ -216,7 +216,7 @@ void TagList::parse(Parser *parser, TagList &tag)
     );
 }
 
-void TagCompound::serialize(Serializer *serializer, const TagCompound &tag)
+void TagCompound::serialize(parsing::Serializer *serializer, const TagCompound &tag)
 {
     for (const auto &[key, value] : tag) {
         serializer->write<tag_type>(value.type());
@@ -226,7 +226,7 @@ void TagCompound::serialize(Serializer *serializer, const TagCompound &tag)
     serializer->write(tag_type::End);
 }
 
-void TagCompound::parse(Parser *parser, TagCompound &tag)
+void TagCompound::parse(parsing::Parser *parser, TagCompound &tag)
 {
     tag_type type;
     parser->read(type);
@@ -239,7 +239,7 @@ void TagCompound::parse(Parser *parser, TagCompound &tag)
     }
 }
 
-void Tag::serialize(Serializer *serializer, const Tag &tag)
+void Tag::serialize(parsing::Serializer *serializer, const Tag &tag)
 {
     std::visit(
         [&serializer](auto &inner_tag) {
@@ -253,7 +253,7 @@ void Tag::serialize(Serializer *serializer, const Tag &tag)
     );
 }
 
-void Tag::parse(Parser *parser, Tag &tag)
+void Tag::parse(parsing::Parser *parser, Tag &tag)
 {
     std::visit(
         [&parser](auto &inner_tag) {
@@ -269,13 +269,13 @@ void Tag::parse(Parser *parser, Tag &tag)
     );
 }
 
-void NetworkNbt::serialize(Serializer *serializer, const NetworkNbt &nbt)
+void NetworkNbt::serialize(parsing::Serializer *serializer, const NetworkNbt &nbt)
 {
     serializer->write(tag_type::Compound);
     serializer->write(nbt.data);
 }
 
-void NetworkNbt::parse(Parser *parser, NetworkNbt &nbt)
+void NetworkNbt::parse(parsing::Parser *parser, NetworkNbt &nbt)
 {
     tag_type type;
     parser->read(type);
@@ -286,14 +286,14 @@ void NetworkNbt::parse(Parser *parser, NetworkNbt &nbt)
     parser->read(nbt.data);
 }
 
-void Nbt::serialize(Serializer *serializer, const Nbt &nbt)
+void Nbt::serialize(parsing::Serializer *serializer, const Nbt &nbt)
 {
     serializer->write(tag_type::Compound);
     serializer->write(nbt.name);
     serializer->write(nbt.data);
 }
 
-void Nbt::parse(Parser *parser, Nbt &nbt)
+void Nbt::parse(parsing::Parser *parser, Nbt &nbt)
 {
     tag_type type;
     parser->read(type);
@@ -317,5 +317,4 @@ auto TagList::size() const -> size_t
     return std::visit([](const auto &tag) { return tag.size(); }, *this);
 }
 
-} // namespace nbt
-CUBIC_WRAP_END
+} // namespace cubic::nbt

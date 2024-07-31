@@ -1,0 +1,3 @@
+[submodule "libs/cubic-parser"]
+	path = libs/cubic-parser
+	url = git@github.com:CubicMC/cubic-parser.git

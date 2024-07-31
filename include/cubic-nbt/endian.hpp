@@ -1,18 +1,17 @@
 #pragma once
 
-#include <NBT/options.h>
+#include <cubic-nbt/options.h>
 
 #include <cstdint>
 #include <endian.h>
 #include <type_traits>
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#ifndef CUBIC_NBT_ENDIAN_BIG
 
-CUBIC_WRAP_BEGIN
-namespace nbt::details {
+namespace cubic::nbt::details {
 
 template<typename T>
-auto byte_swap(T value) -> T
+CUBIC_NBT_API auto byte_swap(T value) -> T
 {
     static_assert(std::is_trivial<T>::value, "Type must be trivial");
     static_assert(std::is_arithmetic<T>::value, "Type must be arithmetic");
@@ -28,11 +27,10 @@ auto byte_swap(T value) -> T
     return result;
 }
 
-} // namespace nbt::details
-CUBIC_WRAP_END
+} // namespace cubic::nbt::details
 
-#define NBT_TO_HOST(value) CUBIC_WRAP::nbt::details::byte_swap(value)
-#define HOST_TO_NBT(value) CUBIC_WRAP::nbt::details::byte_swap(value)
+#define NBT_TO_HOST(value) cubic::nbt::details::byte_swap(value)
+#define HOST_TO_NBT(value) cubic::nbt::details::byte_swap(value)
 
 #elif __BYTE_ORDER == __BIG_ENDIAN
 

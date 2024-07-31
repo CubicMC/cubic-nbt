@@ -1,12 +1,13 @@
-#include <NBT/Tag.hpp>
-
 #include <criterion/criterion.h>
+
+#include <cubic-nbt/tag.hpp>
+
+#include <cubic-parsing/parser.hpp>
+#include <cubic-parsing/serializer.hpp>
 
 TestSuite(tag_serialization, .timeout = 1);
 
-CUBIC_WRAP_USING;
-
-class MemoryBuffer : public Parser, public Serializer {
+class MemoryBuffer : public cubic::parsing::Parser, public cubic::parsing::Serializer {
 public:
     auto write_data(const uint8_t *raw, size_t size) -> bool override;
     auto read_data(uint8_t *raw, size_t size) -> bool override;
@@ -37,8 +38,9 @@ Test(tag_serialization, serialize_hello_world)
                               0x77, 0x6f, 0x72, 0x6c, 0x64, 0x03, 0x00, 0x04, 0x6e,
                               0x61, 0x6d, 0x65, 0x00, 0x00, 0x00, 0x2a, 0x00 };
 
-    nbt::Nbt tag = { "hello world", { { nbt::TagString("name"), nbt::TagInt(42) } } };
-    nbt::TagString name("hello");
+    cubic::nbt::Nbt tag = { "hello world",
+                            { { cubic::nbt::TagString("name"), cubic::nbt::TagInt(42) } } };
+    cubic::nbt::TagString name("hello");
 
     MemoryBuffer buffer;
 
@@ -52,7 +54,8 @@ Test(tag_serialization, serialize_byte)
     uint8_t byte_data[] = { 0x0a, 0x00, 0x04, 0x72, 0x6f, 0x6f, 0x74, 0x01, 0x00, 0x09, 0x62,
                             0x79, 0x74, 0x65, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x2a, 0x00 };
 
-    nbt::Nbt tag = { "root", { { nbt::TagString("byte_test"), nbt::TagByte(42) } } };
+    cubic::nbt::Nbt tag = { "root",
+                            { { cubic::nbt::TagString("byte_test"), cubic::nbt::TagByte(42) } } };
     MemoryBuffer buffer;
 
     buffer.write(tag);
@@ -65,7 +68,8 @@ Test(tag_serialization, serialize_short)
     uint8_t short_data[] = { 0x0a, 0x00, 0x04, 0x72, 0x6f, 0x6f, 0x74, 0x02, 0x00, 0x0a, 0x73, 0x68,
                              0x6f, 0x72, 0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x00, 0x2a, 0x00 };
 
-    nbt::Nbt tag = { "root", { { nbt::TagString("short_test"), nbt::TagShort(42) } } };
+    cubic::nbt::Nbt tag = { "root",
+                            { { cubic::nbt::TagString("short_test"), cubic::nbt::TagShort(42) } } };
     MemoryBuffer buffer;
 
     buffer.write(tag);
@@ -78,7 +82,8 @@ Test(tag_serialization, serialize_int)
     uint8_t int_data[] = { 0x0a, 0x00, 0x04, 0x72, 0x6f, 0x6f, 0x74, 0x03, 0x00, 0x08, 0x69, 0x6e,
                            0x74, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x2a, 0x00 };
 
-    nbt::Nbt tag = { "root", { { nbt::TagString("int_test"), nbt::TagInt(42) } } };
+    cubic::nbt::Nbt tag = { "root",
+                            { { cubic::nbt::TagString("int_test"), cubic::nbt::TagInt(42) } } };
     MemoryBuffer buffer;
 
     buffer.write(tag);
@@ -92,7 +97,8 @@ Test(tag_serialization, serialize_long)
                             0x6c, 0x6f, 0x6e, 0x67, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x00,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x00 };
 
-    nbt::Nbt tag = { "root", { { nbt::TagString("long_test"), nbt::TagLong(42) } } };
+    cubic::nbt::Nbt tag = { "root",
+                            { { cubic::nbt::TagString("long_test"), cubic::nbt::TagLong(42) } } };
     MemoryBuffer buffer;
 
     buffer.write(tag);
@@ -106,7 +112,9 @@ Test(tag_serialization, serialize_float)
                              0x0a, 0x66, 0x6c, 0x6f, 0x61, 0x74, 0x5f, 0x74, 0x65,
                              0x73, 0x74, 0x42, 0x2a, 0xc2, 0x8f, 0x00 };
 
-    nbt::Nbt tag = { "root", { { nbt::TagString("float_test"), nbt::TagFloat(42.69) } } };
+    cubic::nbt::Nbt tag = {
+        "root", { { cubic::nbt::TagString("float_test"), cubic::nbt::TagFloat(42.69) } }
+    };
     MemoryBuffer buffer;
 
     buffer.write(tag);
@@ -120,7 +128,9 @@ Test(tag_serialization, serialize_double)
                               0x64, 0x6f, 0x75, 0x62, 0x6c, 0x65, 0x5f, 0x74, 0x65, 0x73,
                               0x74, 0x40, 0x45, 0x58, 0x51, 0xeb, 0x85, 0x1e, 0xb8, 0x00 };
 
-    nbt::Nbt tag = { "root", { { nbt::TagString("double_test"), nbt::TagDouble(42.69) } } };
+    cubic::nbt::Nbt tag = {
+        "root", { { cubic::nbt::TagString("double_test"), cubic::nbt::TagDouble(42.69) } }
+    };
     MemoryBuffer buffer;
 
     buffer.write(tag);
@@ -134,8 +144,9 @@ Test(tag_serialization, serialize_byte_array)
                                   0x79, 0x74, 0x65, 0x5f, 0x61, 0x72, 0x72, 0x61, 0x79, 0x5f, 0x74,
                                   0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x02, 0x2a, 0x2a, 0x00 };
 
-    nbt::Nbt tag = { "root",
-                     { { nbt::TagString("byte_array_test"), nbt::TagByteArray({ 42, 42 }) } } };
+    cubic::nbt::Nbt tag = { "root",
+                            { { cubic::nbt::TagString("byte_array_test"),
+                                cubic::nbt::TagByteArray({ 42, 42 }) } } };
     MemoryBuffer buffer;
 
     buffer.write(tag);
